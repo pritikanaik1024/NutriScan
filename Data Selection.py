@@ -10,16 +10,6 @@ print(df.columns)
 # List of columns to drop
 columns_to_drop = [
     ['creator', 'url'],
-    ['created_t', 'created_datetime'],
-    ['packaging', 'packaging_tags'],
-    ['manufacturing_places', 'manufacturing_places_tags'],
-    ['emb_codes', 'emb_codes_tags'],
-    ['first_packaging_code_geo', 'cities'],
-    ['cities_tags', 'purchase_places'],
-    ['stores', 'countries'],
-    ['countries_tags', 'countries_en'],
-    ['traces', 'traces_tags'],
-    ['traces_en', 'serving_size']
 ]
 
 # Drop columns if they exist in the DataFrame
@@ -31,11 +21,3 @@ for cols in columns_to_drop:
 # Print columns after dropping
 print("\nColumns after dropping:")
 print(df.columns)
-
-# Describe the DataFrame
-print("\nDataFrame description:")
-print(df.describe())
-
-# Display the first 5 rows
-print("\nFirst 5 rows of the DataFrame:")
-print(df.head(5))
