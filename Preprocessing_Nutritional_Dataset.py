@@ -1,9 +1,13 @@
-import pandas as pd
-import csv
-#
-# # Define the columns to keep
+# import pandas as pd
+# import csv
+
+# # File path to the dataset
+# file_path = 'C:/Users/pritika naik/Downloads/en.openfoodfacts.org.products.tsv'
+# chunksize = 10000  # Number of rows per chunk
+
+# # Columns you want to keep
 # columns_to_keep = [
-#     "code", "product_name", "generic_name", "quantity", "brands", "brands_tags", "categories", "categories_tags",
+#     "product_name", "generic_name", "quantity", "brands", "brands_tags", "categories", "categories_tags",
 #     "categories_en", "labels", "labels_tags", "labels_en", "countries", "countries_tags", "countries_en",
 #     "ingredients_text", "allergens", "allergens_en", "serving_size", "no_nutriments", "additives_n", "additives",
 #     "additives_tags", "additives_en", "nutrition_grade_uk", "nutrition_grade_fr", "main_category", "main_category_en",
@@ -13,41 +17,57 @@ import csv
 #     "fruits_vegetables_nuts_100g", "collagen_meat_protein_ratio_100g", "nutrition_score_fr_100g",
 #     "nutrition_score_uk_100g"
 # ]
-#
-# # Define a larger chunk size
-# chunk_size = 500000  # Adjust based on your memory capacity
-#
-# # Process the file in chunks and save each chunk to a separate CSV
-# for i, chunk in enumerate(
-#         pd.read_csv('data.csv', delimiter='\t', low_memory=False, on_bad_lines='skip', chunksize=chunk_size)):
-#
-#     # Clean column names
-#     chunk.columns = chunk.columns.str.strip().str.lower()
-#
-#     # Select only the columns we need (case-insensitive match)
-#     available_columns = [col for col in columns_to_keep if col.lower() in chunk.columns]
-#
-#     # Filter the chunk to keep only the necessary columns
-#     chunk = chunk[available_columns]
-#
-#     # Fill NaNs with empty strings only for object (string) columns
-#     chunk = chunk.fillna('') if chunk.select_dtypes(include=[object]).shape[1] > 0 else chunk
-#
-#     # Ensure consistent formatting for string columns
-#     chunk = chunk.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-#
-#     # Keep 'code' as a string to avoid overflow issues
-#     if 'code' in chunk.columns:
-#         chunk['code'] = chunk['code'].astype(str)
-#
-#     # Save the processed chunk to a CSV file
-#     chunk.to_csv(f'Preprocessed_Chunk_{i}.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
-#
-# print("Data preprocessing complete. Chunks saved as 'Preprocessed_Chunk_*.csv'.")
-#
 
-# Load the preprocessed data
-df = pd.read_csv('Preprocessed_Nutritional_Dataset.csv', delimiter=',')
+# # Initialize list to store chunks
+# df_list = []
 
-# Save the DataFrame to a new CSV file with proper quoting
-df.to_csv('Formatted_Nutritional_Dataset.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+# # Read the file in chunks and handle formatting issues
+# try:
+#     for chunk in pd.read_csv(file_path, sep='\t', chunksize=chunksize, engine='c', 
+#                              quoting=csv.QUOTE_NONE, quotechar='"', on_bad_lines='skip'):
+#         # Ensure only the columns that exist in the chunk are selected
+#         existing_columns = [col for col in columns_to_keep if col in chunk.columns]
+#         if existing_columns:
+#             # Filter and drop rows where 'product_name' is missing
+#             df_filtered_chunk = chunk[existing_columns].dropna(subset=['product_name'])
+#             df_list.append(df_filtered_chunk)
+
+#     # Concatenate all chunks
+#     if df_list:
+#         df_filtered = pd.concat(df_list)
+
+#         # Save the preprocessed data to CSV
+#         df_filtered.to_csv('Preprocessed_Nutritional_Dataset.csv', index=False)
+
+#         print("Preprocessing complete. Dataset saved as 'Preprocessed_Nutritional_Dataset.csv'.")
+#     else:
+#         print("No data was processed. Please check the dataset or column names.")
+
+# except Exception as e:
+#     print(f"An error occurred: {e}")
+
+
+
+import pandas as pd
+
+# Define file paths
+barcode_dataset_path = r'C:\Users\pritika naik\Documents\GitHub\NutriScan\Barcode_Dataset.csv'
+nutritional_dataset_path = r'C:\Users\pritika naik\Documents\GitHub\NutriScan\Preprocessed_Nutritional_Dataset.csv'
+
+# Load the datasets
+barcode_df = pd.read_csv(barcode_dataset_path)
+nutritional_df = pd.read_csv(nutritional_dataset_path)
+
+# Ensure the barcode column exists in the barcode dataset
+if 'code' not in barcode_df.columns:
+    raise ValueError("The barcode dataset must contain a 'code' column.")
+
+# Create a new DataFrame to hold the joined data
+joined_df = pd.concat([barcode_df, nutritional_df], axis=1)
+
+# Save the joined DataFrame to a new CSV file
+joined_df.to_csv('NutriScan_Dataset.csv', index=False)
+
+print("Datasets have been joined and saved as 'NutriScan_Dataset.csv'.")
+
+# 'C:/Users/pritika naik/Downloads/en.openfoodfacts.org.products.tsv'  
